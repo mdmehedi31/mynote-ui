@@ -1,10 +1,6 @@
 package com.mynote.ui.layouts;
 
-import com.mynote.ui.views.AdminUserListView;
-import com.mynote.ui.views.HomeView;
-import com.mynote.ui.views.NotesView;
-import com.mynote.ui.views.PostView;
-import com.mynote.ui.views.ProfileView;
+import com.mynote.ui.views.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -51,6 +47,7 @@ public class MainLayout extends AppLayout implements BeforeEnterObserver {
         nav.addItem(new SideNavItem("Profile", ProfileView.class, VaadinIcon.USER.create()));
         nav.addItem(new SideNavItem("Notes", NotesView.class, VaadinIcon.NOTEBOOK.create()));
         nav.addItem(new SideNavItem("Post View", PostView.class, VaadinIcon.NEWSPAPER.create()));
+        nav.addItem(new SideNavItem("User Interest Match View", UserInterestMatchView.class, VaadinIcon.AIRPLANE.create()));
        if (/*auth.isAdmin()*/ true) {
             nav.addItem(new SideNavItem("Admin User List", AdminUserListView.class,
                     VaadinIcon.USERS.create()));

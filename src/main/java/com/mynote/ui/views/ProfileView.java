@@ -9,6 +9,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -38,10 +40,11 @@ public class ProfileView extends VerticalLayout {
     private final Binder<UserResponseDTO> binder = new Binder<>(UserResponseDTO.class);
 
     private final UserService userService;
+    private String userId;
 
     public ProfileView(UserService userService) {
         this.userService = userService;
-
+        this.userId="6aed7124a6907782d54c53fc";
         setSizeFull();
         setPadding(true);
         setSpacing(true);
@@ -73,10 +76,13 @@ public class ProfileView extends VerticalLayout {
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         buttonLayout.setWidthFull();
 
+        nameField.setReadOnly(true);
+        emailField.setReadOnly(true);
+
         VerticalLayout container = new VerticalLayout(
                 nameField,
                 emailField,
-                passwordField,
+               /* passwordField,*/
                 interestsComboBox,
                 buttonLayout
         );
@@ -109,16 +115,6 @@ public class ProfileView extends VerticalLayout {
                 .withValidator(new EmailValidator("Please enter a valid email address"))
                 .bind(UserResponseDTO::getEmail, UserResponseDTO::setEmail);
 
-        binder.forField(passwordField)
-                .bind(
-                        dto -> "",
-                        (dto, pwd) -> {
-                            /*if (pwd != null && !pwd.trim().isEmpty()) {
-                                dto.setPassword(pwd);
-                            }*/
-                        }
-                );
-
         binder.forField(interestsComboBox)
                 .bind(
                         dto -> dto.getInterests() != null ?
@@ -134,22 +130,29 @@ public class ProfileView extends VerticalLayout {
     }
 
     private void loadUserProfile() {
-        UserResponseDTO profileDto = null;//userService.getCurrentUserProfile();
-        binder.readBean(profileDto);
+
+        UserResponseDTO profileDto = userService.getUserById(userId);
+        binder.setBean(profileDto);
     }
 
     private void handleSaveProfile() {
         UserRequestDTO profileDto = new UserRequestDTO();
-       /* if (binder.writeBeanIfValid(profileDto)) {
-            userService.updateProfile(profileDto);
-            Notification.show("Profile updated successfully!", 3000, Notification.Position.TOP_CENTER)
-                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        if (binder.isValid()) {
+            UserResponseDTO response = binder.getBean();
+            profileDto.setId(response.getId());
+            profileDto.setInterests(response.getInterests());
+            profileDto.setRole(response.getRole());
 
-            // Clear password field after save
-            passwordField.clear();
+            UserResponseDTO userResponseDTO= userService.updateUser(profileDto);
+
+            if (userResponseDTO != null) {
+                Notification.show("Profile updated successfully!", 3000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+            }
         } else {
             Notification.show("Please fix the validation errors.", 3000, Notification.Position.TOP_CENTER)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
-        }*/
+        }
     }
 }

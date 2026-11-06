@@ -183,7 +183,7 @@ public class AdminUserListView extends VerticalLayout implements BeforeEnterObse
                 targetDto.setName(sourceUserRe.getName());
 
                 log.info("Name : " + targetDto.getName()+", Role : " + targetDto.getRole());
-                UserResponseDTO saveDone = userService.crateUser(targetDto);
+                UserResponseDTO saveDone = userService.updateUser(targetDto);
 
                 if (saveDone != null) {
                     Notification.show("User updated successfully!", 3000, Notification.Position.TOP_CENTER)

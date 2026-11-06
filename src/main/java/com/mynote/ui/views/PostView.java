@@ -6,6 +6,8 @@ import com.mynote.ui.layouts.MainLayout;
 import com.mynotelibrary.dto.NoteResponseDTO;
 import com.mynotelibrary.dto.UserPostRequestDTO;
 import com.mynotelibrary.dto.UserPostResponse;
+import com.mynotelibrary.enums.SUCCESS;
+import com.mynotelibrary.exceptionmessage.ApiResponse;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -13,13 +15,17 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.data.domain.Page;
@@ -132,7 +138,18 @@ public class PostView extends VerticalLayout {
         Span postTime = new Span(formattedDate);
         postTime.getStyle().set("color", "var(--lumo-secondary-text-color)").set("font-size", "12px");
 
-        VerticalLayout headerText = new VerticalLayout(authorName, postTime);
+        Button btnDelete = new Button();
+
+        btnDelete.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_PRIMARY);
+        VaadinIcon icon = VaadinIcon.TRASH;
+        Icon ic = new Icon(icon);
+        ic.getStyle().setColor("red");
+        btnDelete.setIcon(ic);
+
+        HorizontalLayout nameAndButtonLayout = new HorizontalLayout(authorName,btnDelete);
+        nameAndButtonLayout.setWidthFull();
+        nameAndButtonLayout.getStyle().setJustifyContent(Style.JustifyContent.SPACE_BETWEEN);
+        VerticalLayout headerText = new VerticalLayout(nameAndButtonLayout, postTime);
         headerText.setPadding(false);
         headerText.setSpacing(false);
 
@@ -156,6 +173,16 @@ public class PostView extends VerticalLayout {
                 .set("box-shadow", "0 1px 2px rgba(0,0,0,0.1)")
                 .set("border", "1px solid var(--lumo-contrast-10pct)")
                 .set("margin-bottom", "12px");
+
+        btnDelete.addClickListener(e->{
+            ApiResponse response = postService.deletePost(post.getId());
+            if (response !=null && response.getMessage().equalsIgnoreCase(SUCCESS.SUCCESS.name())){
+
+                Notification.show("Post Delete Successfully!", 3000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                card.removeFromParent();
+            }
+        });
 
         return card;
     }

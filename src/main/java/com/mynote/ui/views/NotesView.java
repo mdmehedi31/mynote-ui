@@ -8,9 +8,13 @@ import com.mynotelibrary.enums.SUCCESS;
 import com.mynotelibrary.exceptionmessage.ApiResponse;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -108,7 +112,16 @@ public class NotesView extends VerticalLayout {
                     var icon = VaadinIcon.FILE_TEXT_O.create();
                     icon.setColor("var(--lumo-primary-color)");
                     var name = new Span(note.getTitle());
-                    var row = new HorizontalLayout(icon, name);
+
+                    Button btnViewNote = new Button();
+                    Icon iconViewNote = VaadinIcon.EYE.create();
+                    iconViewNote.getStyle().set("color", "blue");
+                    btnViewNote.setIcon(iconViewNote);
+
+                    var row = new HorizontalLayout(icon, name, btnViewNote);
+                    btnViewNote.addClickListener(e->{
+                        viewNote(note);
+                    });
                     row.setAlignItems(FlexComponent.Alignment.CENTER);
                     return row;
                 }))
@@ -128,6 +141,28 @@ public class NotesView extends VerticalLayout {
 
         return targetGrid;
     }
+
+    private void viewNote(NoteResponseDTO note) {
+
+        VerticalLayout layout = new VerticalLayout();
+        H3 title = new H3(note.getTitle());
+        Paragraph content = new Paragraph(note.getContent());
+        Button btnClose = new Button("Close");
+        layout.add(title, content, btnClose);
+
+        Dialog dialog = new Dialog();
+        dialog.setWidth("60vh");
+        dialog.setHeight("auto");
+        dialog.add(layout);
+        dialog.setResizable(false);
+        dialog.setCloseOnOutsideClick(false);
+        dialog.open();
+
+        btnClose.addClickListener(e -> {
+            dialog.close();
+        });
+    }
+
 
     private void setupDataProvider(String searchKeyword) {
         DataProvider<NoteResponseDTO, Void> dataProvider = DataProvider.<NoteResponseDTO>fromCallbacks(
