@@ -4,6 +4,7 @@ package com.mynote.ui.views;
 import com.mynote.service.PostService;
 import com.mynote.ui.layouts.MainLayout;
 import com.mynotelibrary.dto.NoteResponseDTO;
+import com.mynotelibrary.dto.UserPostRequestDTO;
 import com.mynotelibrary.dto.UserPostResponse;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -34,7 +35,7 @@ public class PostView extends VerticalLayout {
     private final TextArea postTextArea = new TextArea();
     private final Grid<UserPostResponse> postGrid = new Grid<>();
     private final PostService postService;
-
+    private String userId="6aed7124a6907782d54c53fc";
 
     public PostView(PostService postService) {
         this.postService = postService;
@@ -166,9 +167,16 @@ public class PostView extends VerticalLayout {
             return;
         }
 
-        Notification.show("Post published!");
-        handleClearForm();
-        refreshGrid();
+        UserPostRequestDTO post = new UserPostRequestDTO();
+        post.setContent(content);
+        post.setCreatedById(userId);
+
+        UserPostResponse saveResponse = postService.createPost(post);
+        if (saveResponse != null) {
+            Notification.show("Post published!");
+            handleClearForm();
+            refreshGrid();
+        }
     }
 
     private void handleClearForm() {
