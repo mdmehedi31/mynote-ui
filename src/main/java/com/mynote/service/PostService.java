@@ -25,7 +25,7 @@ public class PostService {
     private RestEndPointCaller restEndPointCaller;
     private static final Logger log = LoggerFactory.getLogger(PostService.class);
 
-    public Page<UserPostResponse> getUserAllNotes(int page, int size) {
+    public Page<UserPostResponse> getAllUserAllPosts(int page, int size) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("page", String.valueOf(page));
         params.add("size", String.valueOf(size));

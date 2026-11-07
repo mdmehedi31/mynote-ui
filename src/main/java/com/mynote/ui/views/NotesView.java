@@ -1,5 +1,6 @@
 package com.mynote.ui.views;
 
+import com.mynote.config.SecurityService;
 import com.mynote.service.NoteService;
 import com.mynote.ui.layouts.MainLayout;
 import com.mynotelibrary.dto.NoteRequestDTO;
@@ -28,6 +29,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,7 @@ import java.util.stream.Stream;
 
 @Route(value = "notes", layout = MainLayout.class)
 @PageTitle("Notes | My Note")
+@PermitAll
 public class NotesView extends VerticalLayout {
 
     private static final Logger log = LoggerFactory.getLogger(NotesView.class);
@@ -49,12 +52,14 @@ public class NotesView extends VerticalLayout {
     private final Binder<NoteResponseDTO> binder = new Binder<>(NoteResponseDTO.class);
     private ListDataProvider<NoteResponseDTO> dataProvider;
     private String userId;
+    private SecurityService securityService;
 
     Grid<NoteResponseDTO> targetGrid = new Grid<>(NoteResponseDTO.class, false);
     private TextField searchField;
-    public NotesView(NoteService noteService) {
+    public NotesView(NoteService noteService, SecurityService securityService) {
         this.noteService = noteService;
-        userId="6aed7124a6907782d54c53fc";
+        this.securityService = securityService;
+        userId=securityService.getCurrentUserId();
 
         setSizeFull();
         setMaxWidth("720px");

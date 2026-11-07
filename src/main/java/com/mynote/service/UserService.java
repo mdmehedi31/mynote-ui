@@ -4,6 +4,7 @@ import com.mynote.enums.InterestEnum;
 import com.mynote.restEndPointCaller.RestEndPointCaller;
 import com.mynotelibrary.dto.UserRequestDTO;
 import com.mynotelibrary.dto.UserResponseDTO;
+import com.mynotelibrary.exceptionmessage.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,9 +81,10 @@ public class UserService {
         params.add("size", String.valueOf(size));
 
         for (InterestEnum interest : interests) {
-            params.add("interest", interest.name());
+            params.add("interest", interest.getLabel());
         }
 
+        log.info("Interests: {}", params.get("interest"));
         ParameterizedTypeReference<RestResponsePage<UserResponseDTO>> responseType =
                 new ParameterizedTypeReference<>() {};
 
@@ -94,6 +96,8 @@ public class UserService {
             );
 
             if (responsePage != null && responsePage.getContent() != null) {
+                log.info("Interests: {}", responsePage.getContent().size());
+                log.info("Interests: {}", responsePage.getContent().toArray());
                 return new PageImpl<>(
                         responsePage.getContent(),
                         PageRequest.of(page, size > 0 ? size : 10),
@@ -107,4 +111,13 @@ public class UserService {
             return Page.empty();
         }
     }
+
+
+    public ApiResponse deleteUserById(String userId) {
+
+        ApiResponse apiResponse = restEndPointCaller.deleteCaller(UserEndPoint.DELETE_USER+"/"+userId,ApiResponse.class);
+        return apiResponse;
+    }
+
+
 }

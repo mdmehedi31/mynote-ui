@@ -4,20 +4,24 @@ package com.mynote.ui.views;
 import com.mynote.enums.InterestEnum;
 import com.mynote.service.UserService;
 import com.mynote.ui.layouts.MainLayout;
-import com.mynotelibrary.dto.NoteResponseDTO;
 import com.mynotelibrary.dto.UserResponseDTO;
+import com.vaadin.copilot.shaded.reactor.netty.http.internal.Http3;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.data.domain.Page;
 
 import java.util.Arrays;
@@ -25,6 +29,7 @@ import java.util.stream.Stream;
 
 @Route(value = "user-interest-view", layout = MainLayout.class)
 @PageTitle("Profile | User interest view")
+@PermitAll
 public class UserInterestMatchView extends VerticalLayout {
 
     private final MultiSelectComboBox<InterestEnum> interestSelect;
@@ -36,7 +41,7 @@ public class UserInterestMatchView extends VerticalLayout {
         interestSelect = new MultiSelectComboBox<>();
         interestSelect.setPlaceholder("Select interests...");
         interestSelect.setItems(Arrays.asList(InterestEnum.values()));
-        interestSelect.setItemLabelGenerator(InterestEnum::getDisplayName);
+        interestSelect.setItemLabelGenerator(InterestEnum::getLabel);
 
         searchButton = new Button("Search");
 
@@ -77,8 +82,11 @@ public class UserInterestMatchView extends VerticalLayout {
             refreshGrid();
         });
 
+        H5 title = new H5("To view all posts by a user, click their email address in the Email column.");
+        title.getStyle().setFontWeight(Style.FontWeight.BOLD);
+
         setSizeFull();
-        add(headerLayout, grid);
+        add(headerLayout, title, grid);
         setFlexGrow(1, grid);
         refreshGrid();
     }

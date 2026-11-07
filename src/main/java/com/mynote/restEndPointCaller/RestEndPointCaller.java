@@ -1,5 +1,6 @@
 package com.mynote.restEndPointCaller;
 
+import com.vaadin.flow.server.VaadinSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,28 +18,12 @@ import java.net.URI;
 public class RestEndPointCaller {
 
     private RestClient restClient;
-/*
-    @Autowired
-    private SecurityContext securityContext;*/
+
     private static final Logger log = LoggerFactory.getLogger(RestEndPointCaller.class);
-    public RestEndPointCaller(RestClient restClient/*, SecurityContext securityContext*/) {
+    public RestEndPointCaller(RestClient restClient) {
         this.restClient = restClient;
-       // this.securityContext = securityContext;
     }
 
-
-   /* @Bean
-    public RestClient createRestClientBean(SecurityContext securityContext) {
-        log.info("Creating RestClient Bean >>>>");
-        return RestClient.builder().requestInterceptor((request,body,execution)->{
-
-            String token= securityContext.getCurrentUser().getJwtToken();
-            if (token != null) {
-                request.getHeaders().setBearerAuth(token);
-            }
-            return execution.execute(request, body);
-        }).build();
-    }*/
 
     public <E,T> T postCallerWithRequestBody(String path, E requestType, Class<T> responseBody) {
         try {
@@ -46,10 +31,10 @@ public class RestEndPointCaller {
             log.info("The rest client url is : {}", this.restClient.options().retrieve());
             return this.restClient.post().
                     uri(path).
-                    body(requestType)./*
+                    body(requestType).
                     headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
 
@@ -71,10 +56,10 @@ public class RestEndPointCaller {
             log.info("The rest client url is : {}", this.restClient.options().retrieve());
             return this.restClient.post().
                     uri(path, pathValue).
-                    body(requestBody)./*
+                    body(requestBody).
                     headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
 
@@ -95,10 +80,10 @@ public class RestEndPointCaller {
             return restClient.post()
                     .uri(ub->ub.path(path).
                             queryParams(requestParam).
-                            build())./*
+                            build()).
                     headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve()
                     .body(responseBody);
         } catch(HttpServerErrorException e){
@@ -116,10 +101,10 @@ public class RestEndPointCaller {
         try{
             return restClient.put().
                     uri(path).
-                    body(requestBody)./*
+                    body(requestBody).
                     headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
 
@@ -138,10 +123,10 @@ public class RestEndPointCaller {
             return restClient.put().uri(ub-> ub.
                     path(path).
                     queryParams(requestParam).
-                    build())./*
+                    build()).
                     headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
         }catch(HttpClientErrorException e){
@@ -166,10 +151,10 @@ public class RestEndPointCaller {
             return restClient.get().
                     uri(ub->ub.path(path).
                             queryParams(requestParam).
-                            build())./*
+                            build()).
                     headers(e -> {
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
         } catch (Exception e) {
@@ -182,10 +167,10 @@ public class RestEndPointCaller {
             return restClient.get().
                     uri(ub->ub.path(path).
                             queryParams(requestParam).
-                            build())./*
+                            build()).
                     headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
         }catch(HttpServerErrorException e){
@@ -202,10 +187,10 @@ public class RestEndPointCaller {
     public <T> T putCallerWithPathVariable(String path,Class<T> responseBody, Object... pathValue){
         try{
             return restClient.put().
-                    uri(path, pathValue)./*
+                    uri(path, pathValue).
                     headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
         }catch(HttpClientErrorException e){
@@ -223,7 +208,7 @@ public class RestEndPointCaller {
         try {
             return restClient.delete()
                     .uri(path)
-                   // .headers(headers -> headers.addAll(getHeaders()))
+                    .headers(headers -> headers.addAll(getHeaders()))
                     .retrieve()
                     .body(responseBody);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
@@ -235,9 +220,9 @@ public class RestEndPointCaller {
 
     public <T> T getCaller(String path, Class<T> responseBody){
         try{
-            return restClient.get().uri(path)/*.headers(e->{
+            return restClient.get().uri(path).headers(e->{
                 e.addAll(getHeaders());
-            })*/.retrieve().body(responseBody);
+            }).retrieve().body(responseBody);
         } catch(HttpClientErrorException e){
             throw e;
         }
@@ -253,9 +238,9 @@ public class RestEndPointCaller {
 
             return restClient.get().
                     uri(path, pathValue).
-                   /* headers(e->{
+                    headers(e->{
                         e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
 
@@ -284,9 +269,9 @@ public class RestEndPointCaller {
         try{
             return restClient.get().
                     uri(path, pathValue).
-                  /*  headers(e->{
+                    headers(e->{
                        e.addAll(getHeaders());
-                    }).*/
+                    }).
                     retrieve().
                     body(responseBody);
 
@@ -301,18 +286,12 @@ public class RestEndPointCaller {
         }
     }
 
-   /*private HttpHeaders getHeaders(){
-
-        CurrentUser currentUser = securityContext.getCurrentUser();
+   private HttpHeaders getHeaders(){
+       Object jwtToken = VaadinSession.getCurrent().getAttribute("jwt_token");
         HttpHeaders headers = new HttpHeaders();
-
-        System.out.println("Current user value is : "+currentUser);
-        if(currentUser != null) {
-            System.out.println("Current user is not null... ... ...!");
-            System.out.println("token is :: "+currentUser.getJwtToken());
-
-            headers.setBearerAuth(currentUser.getJwtToken());
+        if(jwtToken != null) {
+            headers.setBearerAuth(String.valueOf(jwtToken));
         }
         return headers;
-    }*/
+    }
 }

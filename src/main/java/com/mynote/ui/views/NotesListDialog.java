@@ -5,16 +5,13 @@ import com.mynote.service.NoteService;
 import com.mynotelibrary.dto.NoteResponseDTO;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -62,7 +59,6 @@ public class NotesListDialog extends Dialog {
             NoteResponseDTO clickedNote = event.getItem();
 
             if (clickedNote == null) {
-                log.info("Click note is null");
                 return;
             }
 
@@ -71,31 +67,12 @@ public class NotesListDialog extends Dialog {
                 closeDrawer();
                 selectedNote = null;
             } else {
+                grid.getSelectionModel().deselectAll();
                 grid.getSelectionModel().select(clickedNote);
                 selectedNote = clickedNote;
                 openDrawer(clickedNote);
             }
         });
-/*
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            NoteResponseDTO clickedNote = grid.asSingleSelect().getValue();
-            if (clickedNote == null) {
-                log.info("Click note is null");
-                closeDrawer();
-                return;
-            }
-
-            if (selectedNote != null && selectedNote.equals(clickedNote)) {
-                grid.asSingleSelect().clear();
-                grid.deselectAll();
-                closeDrawer();
-                selectedNote = null;
-            } else {
-                selectedNote = clickedNote;
-                openDrawer(clickedNote);
-            }
-        });*/
-
         Button closeButton = new Button("Close", e -> close());
         closeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         getFooter().add(closeButton);
@@ -162,7 +139,7 @@ public class NotesListDialog extends Dialog {
     }
 
     private void closeDrawer() {
-        leftDrawer.getStyle().set("left", "-300px");
+        leftDrawer.getStyle().set("right", "-300px");
     }
 
     private void leftDataProviderStyle() {

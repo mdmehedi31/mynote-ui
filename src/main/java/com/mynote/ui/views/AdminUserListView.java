@@ -1,11 +1,14 @@
 package com.mynote.ui.views;
 
+import com.mynote.config.SecurityService;
 import com.mynote.service.NoteService;
 import com.mynote.service.UserService;
 import com.mynote.ui.layouts.MainLayout;
 import com.mynotelibrary.dto.UserRequestDTO;
 import com.mynotelibrary.dto.UserResponseDTO;
+import com.mynotelibrary.enums.SUCCESS;
 import com.mynotelibrary.enums.UserRole;
+import com.mynotelibrary.exceptionmessage.ApiResponse;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -21,20 +24,25 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @Route(value = "admin/users", layout = MainLayout.class)
 @PageTitle("Users | My Note")
+@PermitAll
 public class AdminUserListView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final Logger log = LoggerFactory.getLogger(AdminUserListView.class);
@@ -42,10 +50,13 @@ public class AdminUserListView extends VerticalLayout implements BeforeEnterObse
     private final UserService userService;
     private final NoteService noteService;
     private String userId;
-    public AdminUserListView(UserService userService,NoteService noteService) {
+    private final SecurityService securityService;
+
+    public AdminUserListView(UserService userService, NoteService noteService, SecurityService securityService) {
         this.userService = userService;
         this.noteService = noteService;
-        this.userId = "6aed7124a6907782d54c53fc";
+        this.securityService = securityService;
+        this.userId = securityService.getCurrentUserId();
         setSizeFull();
         setPadding(true);
         setSpacing(true);
@@ -75,10 +86,42 @@ public class AdminUserListView extends VerticalLayout implements BeforeEnterObse
             Button editButton = new Button("Edit User", e -> openEditDialog(user));
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
 
-            HorizontalLayout actions = new HorizontalLayout(viewNoteButton, editButton);
+            Button btnDelete= new Button("Removed",e->{
+                removeUser(user);
+            });
+            btnDelete.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+            HorizontalLayout actions = new HorizontalLayout(viewNoteButton, editButton,btnDelete);
             actions.setSpacing(true);
             return actions;
         })).setHeader("Actions").setAutoWidth(true);
+    }
+
+    private void removeUser(UserResponseDTO userResponseDTO) {
+
+        ApiResponse response= userService.deleteUserById(userResponseDTO.getId());
+        if (response != null){
+            if (response.getMessage().equals(SUCCESS.SUCCESS.name())){
+
+                Notification.show("User deleted successfully!", 3000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+                userGrid.getDataProvider().fetch(new Query<>())
+                        .filter(item -> item.equals(userResponseDTO))
+                        .findFirst();
+
+                ((ListDataProvider<UserResponseDTO>) userGrid.getDataProvider()).getItems().remove(userResponseDTO);
+                userGrid.getDataProvider().refreshAll();
+            }else{
+
+                Notification.show(response.getMessage()!=null && !response.getMessage().isBlank() ? response.getMessage() : "User deleted failed!", 3000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            }
+            userGrid.getDataProvider().refreshAll();
+        }else{
+
+            Notification.show("User deleted failed!", 3000, Notification.Position.TOP_CENTER)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        }
     }
 
     private void refreshGrid() {

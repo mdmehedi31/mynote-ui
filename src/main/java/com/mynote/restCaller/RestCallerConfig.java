@@ -13,9 +13,7 @@ public class RestCallerConfig {
     private String serviceUrl;
 
     @Bean
-    public RestClient createRestClient(/*RestClient.Builder builder*/) {
-        System.out.println("Creating RestClient "+serviceUrl);
-     //   return builder.baseUrl(serviceUrl).build();
+    public RestClient createRestClient() {
         return RestClient.builder()
                 .baseUrl(serviceUrl)
                 .build();

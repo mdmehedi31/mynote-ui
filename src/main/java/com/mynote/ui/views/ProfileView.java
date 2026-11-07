@@ -1,5 +1,6 @@
 package com.mynote.ui.views;
 
+import com.mynote.config.SecurityService;
 import com.mynote.enums.InterestEnum;
 import com.mynote.service.UserService;
 import com.mynote.ui.layouts.MainLayout;
@@ -21,6 +22,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Route(value = "profile", layout = MainLayout.class)
 @PageTitle("Profile | My Note")
+@PermitAll
 public class ProfileView extends VerticalLayout {
 
 
@@ -41,10 +44,12 @@ public class ProfileView extends VerticalLayout {
 
     private final UserService userService;
     private String userId;
+    private final SecurityService securityService;
 
-    public ProfileView(UserService userService) {
+    public ProfileView(UserService userService, SecurityService securityService) {
         this.userService = userService;
-        this.userId="6aed7124a6907782d54c53fc";
+        this.securityService = securityService;
+        this.userId=securityService.getCurrentUserId();
         setSizeFull();
         setPadding(true);
         setSpacing(true);
@@ -102,7 +107,7 @@ public class ProfileView extends VerticalLayout {
     private void configureInterestsComboBox() {
         interestsComboBox.setItems(Arrays.asList(InterestEnum.values()));
 
-        interestsComboBox.setItemLabelGenerator(InterestEnum::getDisplayName);
+        interestsComboBox.setItemLabelGenerator(InterestEnum::getLabel);
     }
 
     private void configureBinder() {
@@ -119,11 +124,12 @@ public class ProfileView extends VerticalLayout {
                 .bind(
                         dto -> dto.getInterests() != null ?
                                 dto.getInterests().stream()
-                                        .map(InterestEnum::valueOf)
+                                        .map(InterestEnum::fromLabel)
+                                        .filter(java.util.Objects::nonNull)
                                         .collect(Collectors.toSet()) : Set.of(),
                         (dto, selectedEnums) -> dto.setInterests(
                                 selectedEnums.stream()
-                                        .map(Enum::name)
+                                        .map(InterestEnum::getLabel)
                                         .collect(Collectors.toList())
                         )
                 );

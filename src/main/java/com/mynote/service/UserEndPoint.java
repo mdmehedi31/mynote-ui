@@ -8,4 +8,5 @@ public class UserEndPoint {
     public static final String GET_USERS = ROOT_PATH + "gets";
     public static final String GET_USER = ROOT_PATH + "get";
     public static final String GET_MATCH_USER_INTEREST = ROOT_PATH + "by-interests";
+    public static final String DELETE_USER = ROOT_PATH + "delete";
 }

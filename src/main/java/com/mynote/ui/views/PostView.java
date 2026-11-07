@@ -1,6 +1,7 @@
 package com.mynote.ui.views;
 
 
+import com.mynote.config.SecurityService;
 import com.mynote.service.PostService;
 import com.mynote.ui.layouts.MainLayout;
 import com.mynotelibrary.dto.NoteResponseDTO;
@@ -28,6 +29,9 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 
 import java.time.format.DateTimeFormatter;
@@ -36,15 +40,19 @@ import java.util.stream.Stream;
 
 @Route(value = "posts", layout = MainLayout.class)
 @PageTitle("Posts | My Note")
+@PermitAll
 public class PostView extends VerticalLayout {
 
     private final TextArea postTextArea = new TextArea();
     private final Grid<UserPostResponse> postGrid = new Grid<>();
     private final PostService postService;
-    private String userId="6aed7124a6907782d54c53fc";
-
-    public PostView(PostService postService) {
+    private String userId;
+    private SecurityService securityService;
+    private static final Logger log   = LoggerFactory.getLogger(PostView.class);
+    public PostView(PostService postService,SecurityService securityService) {
         this.postService = postService;
+        this.securityService = securityService;
+        userId = securityService.getCurrentUserId();
 
         setSizeFull();
         setPadding(true);
@@ -94,7 +102,7 @@ public class PostView extends VerticalLayout {
                     int size = query.getLimit();
 
                     Page<UserPostResponse> notePage =
-                            postService.getUserAllNotes(page, size);
+                            postService.getAllUserAllPosts(page, size);
 
                     if (notePage != null && notePage.getContent() != null) {
                         return notePage.getContent().stream();
@@ -107,7 +115,7 @@ public class PostView extends VerticalLayout {
                     int size = query.getLimit();
 
                     Page<UserPostResponse> notePage =
-                            postService.getUserAllNotes( page, size);
+                            postService.getAllUserAllPosts( page, size);
 
                     return notePage != null ? (int) notePage.getTotalElements() : 0;
                 }
@@ -146,6 +154,10 @@ public class PostView extends VerticalLayout {
         ic.getStyle().setColor("red");
         btnDelete.setIcon(ic);
 
+        log.info("Post is null : {}",post==null);
+        log.info("Created by : {}",post.getCreatedBy()==null);
+        log.info("User id : {} ",userId);
+        btnDelete.setVisible(post.getCreatedBy().equals(userId));
         HorizontalLayout nameAndButtonLayout = new HorizontalLayout(authorName,btnDelete);
         nameAndButtonLayout.setWidthFull();
         nameAndButtonLayout.getStyle().setJustifyContent(Style.JustifyContent.SPACE_BETWEEN);

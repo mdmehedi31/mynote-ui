@@ -17,6 +17,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
 
 @Route(value = "user-post", layout = MainLayout.class)
 @PageTitle("Profile | User post view")
+@PermitAll
 public class UserProfilePostsView extends VerticalLayout implements HasUrlParameter<String> {
 
     private final H3 nameHeading;
@@ -88,15 +90,17 @@ public class UserProfilePostsView extends VerticalLayout implements HasUrlParame
             nameHeading.setText("Name: "+userResponseDTO.getName()!=null?userResponseDTO.getName():"");
             emailPara.setText("Email: "+userResponseDTO.getEmail()!=null?userResponseDTO.getEmail():"");
 
-            for(String interest : userResponseDTO.getInterests()){
-                for (String ints : userResponseDTO.getInterests()) {
-                    Span spInt= new Span(interest);
-                    spInt.setText(ints);
-                    spInt.getStyle().set("font-size", "medium");
-                    spInt.getStyle().setColor("green");
-                    interestsLayout.add(spInt);
+            /*if (userResponseDTO.getInterests() != null) {
+                for (String interest : userResponseDTO.getInterests()) {
+                    for (String ints : userResponseDTO.getInterests()) {
+                        Span spInt = new Span(interest);
+                        spInt.setText(ints);
+                        spInt.getStyle().set("font-size", "medium");
+                        spInt.getStyle().setColor("green");
+                        interestsLayout.add(spInt);
+                    }
                 }
-            }
+            }*/
         }
         refreshGrid(userId);
     }
