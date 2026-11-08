@@ -128,7 +128,6 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         email.setRequired(true);
         PasswordField password = new PasswordField("Password");
         password.setRequired(true);
-        password.setHelperText("At least 8 characters");
 
         Button register = new Button("Create account", e -> {
             if(email.getValue() == null || password.getValue() == null || password.getValue().isBlank()) {
