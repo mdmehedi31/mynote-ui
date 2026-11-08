@@ -26,7 +26,7 @@ public class UserService {
     private RestEndPointCaller restEndPointCaller;
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    public Page<UserResponseDTO> getAllUsers(int page, int size, String sortBy, String order) {
+    public Page<UserResponseDTO> getAllUsers(int page, int size, String sortBy, String order, String loggedInUserId) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("page", String.valueOf(page));
         params.add("size", String.valueOf(size));
@@ -37,17 +37,16 @@ public class UserService {
         if (order != null && !order.isBlank())
             params.add("sortDir", order);
 
+        params.add("loggedInUserId", loggedInUserId);
 
         ParameterizedTypeReference<RestResponsePage<UserResponseDTO>> responseType =
                 new ParameterizedTypeReference<>() {};
-
         try {
             RestResponsePage<UserResponseDTO> responsePage = restEndPointCaller.getWithRequestParam(
                     UserEndPoint.GET_USERS,
                     responseType,
                     params
             );
-
             if (responsePage != null && responsePage.getContent() != null) {
                 return new PageImpl<>(
                         responsePage.getContent(),
@@ -55,7 +54,6 @@ public class UserService {
                         responsePage.getTotalElements()
                 );
             }
-
             return Page.empty();
         } catch (Exception e) {
             log.error("Error fetching paginated notes: " + e.getMessage());
@@ -81,7 +79,7 @@ public class UserService {
         params.add("size", String.valueOf(size));
 
         for (InterestEnum interest : interests) {
-            params.add("interest", interest.getLabel());
+            params.add("interests", interest.getLabel());
         }
 
         log.info("Interests: {}", params.get("interest"));

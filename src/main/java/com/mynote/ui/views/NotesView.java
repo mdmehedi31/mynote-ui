@@ -18,6 +18,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -226,7 +227,9 @@ public class NotesView extends VerticalLayout {
 
             NoteResponseDTO saveResponse = noteService.createNote(requestDTO);
             if (saveResponse != null) {
-                Notification.show("Note saved");
+
+                Notification.show("Note saved", 2000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                 clearForm();
                 refreshGrid(null);
             }

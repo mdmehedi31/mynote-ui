@@ -145,7 +145,7 @@ public class AdminUserListView extends VerticalLayout implements BeforeEnterObse
                     }
 
                     Page<UserResponseDTO> userPage =
-                            userService.getAllUsers(page, size, sortBy, order);
+                            userService.getAllUsers(page, size, sortBy, order,userId);
 
                     if (userPage != null && userPage.getContent() != null) {
                         return userPage.getContent().stream();
@@ -166,7 +166,7 @@ public class AdminUserListView extends VerticalLayout implements BeforeEnterObse
                     }
 
                     Page<UserResponseDTO> userPage =
-                            userService.getAllUsers(page, size, sortBy, order);
+                            userService.getAllUsers(page, size, sortBy, order,userId);
 
                     return userPage != null ? (int) userPage.getTotalElements() : 0;
                 }
